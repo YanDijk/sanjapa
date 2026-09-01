@@ -1,0 +1,369 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..9fa68e4
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,5 @@
++node_modules/
++dist/
++.output/
++.vinxi/
++*.log
+diff --git a/remove-lovable.patch b/remove-lovable.patch
+deleted file mode 100644
+index 1c51ccd..0000000
+--- a/remove-lovable.patch
++++ /dev/null
+@@ -1,171 +0,0 @@
+-diff --git a/AGENTS.md b/AGENTS.md
+-deleted file mode 100644
+-index 36eb109..0000000
+---- a/AGENTS.md
+-+++ /dev/null
+-@@ -1,10 +0,0 @@
+--<!-- LOVABLE:BEGIN -->
+--> [!IMPORTANT]
+--> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
+--> published git history — force pushing, or rebasing/amending/squashing commits
+--> that are already pushed — as it rewrites history on Lovable's side and the
+--> user will likely lose their project history.
+-->
+--> Commits you push to the connected branch sync back to Lovable and show up in
+--> the editor, so keep the branch in a working state.
+--<!-- LOVABLE:END -->
+-diff --git a/bunfig.toml b/bunfig.toml
+-index eccc852..39c7a3f 100644
+---- a/bunfig.toml
+-+++ b/bunfig.toml
+-@@ -2,6 +2,3 @@
+- saveTextLockfile = true
+- # 24h supply-chain guard: skip package versions published less than a day ago.
+- minimumReleaseAge = 86400
+--# Each entry bypasses the 24h guard for one package — confirm with the user
+--# before adding any.
+--minimumReleaseAgeExcludes = ["@lovable.dev/vite-tanstack-config", "@lovable.dev/mcp-js", "@lovable.dev/email-js", "@lovable.dev/webhooks-js"]
+-diff --git a/package.json b/package.json
+-index 4516954..b2195a6 100644
+---- a/package.json
+-+++ b/package.json
+-@@ -71,7 +71,6 @@
+-   },
+-   "devDependencies": {
+-     "@eslint/js": "^9.32.0",
+--    "@lovable.dev/vite-tanstack-config": "^2.15.0",
+-     "@types/node": "^22.16.5",
+-     "@types/react": "^19.2.0",
+-     "@types/react-dom": "^19.2.0",
+-diff --git a/src/lib/lovable-error-reporting.ts b/src/lib/lovable-error-reporting.ts
+-deleted file mode 100644
+-index 37967fd..0000000
+---- a/src/lib/lovable-error-reporting.ts
+-+++ /dev/null
+-@@ -1,58 +0,0 @@
+--type LovableErrorOptions = {
+--  mechanism?: "manual" | "onerror" | "unhandledrejection" | "react_error_boundary";
+--  handled?: boolean;
+--  severity?: "error" | "warning" | "info";
+--};
+--
+--type LovableEvents = {
+--  captureException?: (
+--    error: unknown,
+--    context?: Record<string, unknown>,
+--    options?: LovableErrorOptions,
+--  ) => void;
+--};
+--
+--declare global {
+--  interface Window {
+--    __lovableEvents?: LovableEvents;
+--    __lovableReportRuntimeError?: (payload: {
+--      message: string;
+--      stack?: string;
+--      filename?: string;
+--    }) => void;
+--  }
+--}
+--
+--export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
+--  if (typeof window === "undefined") return;
+--  window.__lovableEvents?.captureException?.(
+--    error,
+--    {
+--      source: "react_error_boundary",
+--      route: window.location.pathname,
+--      ...context,
+--    },
+--    {
+--      mechanism: "react_error_boundary",
+--      handled: false,
+--      severity: "error",
+--    },
+--  );
+--  // Prod React does not rethrow boundary-caught errors to window.onerror, so the
+--  // editor's telemetry never sees them. Forward to lovable.js's reporting hook,
+--  // which is present only inside the editor preview.
+--  // Loaders and server fns commonly throw a raw Response; String(it) is the
+--  // opaque "[object Response]", so pull out the status and URL instead.
+--  const message =
+--    error instanceof Response
+--      ? `Response ${error.status}${error.url ? ` at ${error.url}` : ""}`
+--      : error instanceof Error
+--        ? error.message
+--        : String(error);
+--  const stack = error instanceof Error ? error.stack : undefined;
+--  window.__lovableReportRuntimeError?.({
+--    message,
+--    ...(stack !== undefined && { stack }),
+--    filename: window.location.pathname,
+--  });
+--}
+-diff --git a/vite.config.ts b/vite.config.ts
+-index 174e074..807c329 100644
+---- a/vite.config.ts
+-+++ b/vite.config.ts
+-@@ -1,15 +1,52 @@
+--// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
+--// or the app will break with duplicate plugins:
+--//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
+--//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
+--//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
+--// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
+--import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+-+import { defineConfig } from "vite";
+-+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+-+import viteReact from "@vitejs/plugin-react";
+-+import viteTsConfigPaths from "vite-tsconfig-paths";
+-+import tailwindcss from "@tailwindcss/vite";
+-+import { nitro } from "nitro/vite";
+- 
+- export default defineConfig({
+--  tanstackStart: {
+--    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+--    // nitro/vite builds from this
+--    server: { entry: "server" },
+-+  server: {
+-+    host: "::",
+-+    port: 8080,
+-   },
+-+  css: {
+-+    transformer: "lightningcss",
+-+  },
+-+  resolve: {
+-+    alias: {
+-+      "@": new URL("./src", import.meta.url).pathname,
+-+    },
+-+    dedupe: [
+-+      "react",
+-+      "react-dom",
+-+      "react/jsx-runtime",
+-+      "react/jsx-dev-runtime",
+-+      "@tanstack/react-query",
+-+      "@tanstack/query-core",
+-+    ],
+-+  },
+-+  optimizeDeps: {
+-+    include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+-+  },
+-+  plugins: [
+-+    tailwindcss(),
+-+    viteTsConfigPaths({
+-+      projects: ["./tsconfig.json"],
+-+    }),
+-+    tanstackStart({
+-+      importProtection: {
+-+        behavior: "error",
+-+        client: {
+-+          files: ["**/server/**"],
+-+          specifiers: ["server-only"],
+-+        },
+-+      },
+-+    }),
+-+    // Vercel detects this plugin and configures the right output/preset
+-+    // automatically at build time. Locally it falls back to Nitro's
+-+    // default (Node) preset, which is fine for `vite preview`.
+-+    nitro(),
+-+    viteReact(),
+-+  ],
+- });
+diff --git a/src/routes/__root.tsx b/src/routes/__root.tsx
+new file mode 100644
+index 0000000..074c5f9
+--- /dev/null
++++ b/src/routes/__root.tsx
+@@ -0,0 +1,33 @@
++/// <reference types="vite/client" />
++import type { ReactNode } from "react";
++import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
++import appCss from "@/styles.css?url";
++
++export const Route = createRootRoute({
++  head: () => ({
++    meta: [
++      { charSet: "utf-8" },
++      { name: "viewport", content: "width=device-width, initial-scale=1" },
++      { title: "Sanjapa Prime Sushi — Gastronomia japonesa premium" },
++    ],
++    links: [
++      { rel: "stylesheet", href: appCss },
++      { rel: "icon", href: "/favicon.ico" },
++    ],
++  }),
++  shellComponent: RootDocument,
++});
++
++function RootDocument({ children }: { children: ReactNode }) {
++  return (
++    <html lang="pt-BR" className="dark">
++      <head>
++        <HeadContent />
++      </head>
++      <body>
++        {children}
++        <Scripts />
++      </body>
++    </html>
++  );
++}
+diff --git a/src/styles.css b/src/styles.css
+new file mode 100644
+index 0000000..71c8ca5
+--- /dev/null
++++ b/src/styles.css
+@@ -0,0 +1,136 @@
++@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
++@import "tailwindcss";
++@import "tw-animate-css";
++
++@custom-variant dark (&:is(.dark *));
++
++:root {
++  --radius: 0.25rem;
++
++  --background: oklch(0.99 0 0);
++  --foreground: oklch(0.14 0 0);
++  --card: oklch(0.99 0 0);
++  --card-foreground: oklch(0.14 0 0);
++  --popover: oklch(0.99 0 0);
++  --popover-foreground: oklch(0.14 0 0);
++  --primary: oklch(0.74 0.13 85);
++  --primary-foreground: oklch(0.14 0.02 85);
++  --secondary: oklch(0.94 0 0);
++  --secondary-foreground: oklch(0.14 0 0);
++  --muted: oklch(0.94 0 0);
++  --muted-foreground: oklch(0.46 0 0);
++  --accent: oklch(0.94 0 0);
++  --accent-foreground: oklch(0.14 0 0);
++  --destructive: oklch(0.58 0.22 27);
++  --border: oklch(0.88 0 0);
++  --input: oklch(0.88 0 0);
++  --ring: oklch(0.74 0.13 85);
++
++  /* Sanjapa brand tokens */
++  --gold: oklch(0.74 0.13 85);
++  --crimson: oklch(0.32 0.16 25);
++  --crimson-foreground: oklch(0.96 0 0);
++  --ink: oklch(0.1 0 0);
++}
++
++.dark {
++  --background: oklch(0.1 0 0);
++  --foreground: oklch(0.96 0 0);
++  --card: oklch(0.14 0 0);
++  --card-foreground: oklch(0.96 0 0);
++  --popover: oklch(0.14 0 0);
++  --popover-foreground: oklch(0.96 0 0);
++  --primary: oklch(0.74 0.13 85);
++  --primary-foreground: oklch(0.14 0.02 85);
++  --secondary: oklch(0.2 0 0);
++  --secondary-foreground: oklch(0.96 0 0);
++  --muted: oklch(0.2 0 0);
++  --muted-foreground: oklch(0.65 0 0);
++  --accent: oklch(0.2 0 0);
++  --accent-foreground: oklch(0.96 0 0);
++  --destructive: oklch(0.58 0.22 27);
++  --border: oklch(1 0 0 / 10%);
++  --input: oklch(1 0 0 / 15%);
++  --ring: oklch(0.74 0.13 85);
++
++  --gold: oklch(0.74 0.13 85);
++  --crimson: oklch(0.32 0.16 25);
++  --crimson-foreground: oklch(0.96 0 0);
++  --ink: oklch(0.08 0 0);
++}
++
++@theme inline {
++  --color-background: var(--background);
++  --color-foreground: var(--foreground);
++  --color-card: var(--card);
++  --color-card-foreground: var(--card-foreground);
++  --color-popover: var(--popover);
++  --color-popover-foreground: var(--popover-foreground);
++  --color-primary: var(--primary);
++  --color-primary-foreground: var(--primary-foreground);
++  --color-secondary: var(--secondary);
++  --color-secondary-foreground: var(--secondary-foreground);
++  --color-muted: var(--muted);
++  --color-muted-foreground: var(--muted-foreground);
++  --color-accent: var(--accent);
++  --color-accent-foreground: var(--accent-foreground);
++  --color-destructive: var(--destructive);
++  --color-border: var(--border);
++  --color-input: var(--input);
++  --color-ring: var(--ring);
++
++  --color-gold: var(--gold);
++  --color-crimson: var(--crimson);
++  --color-crimson-foreground: var(--crimson-foreground);
++  --color-ink: var(--ink);
++
++  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
++  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
++
++  --radius-sm: calc(var(--radius) - 4px);
++  --radius-md: calc(var(--radius) - 2px);
++  --radius-lg: var(--radius);
++  --radius-xl: calc(var(--radius) + 4px);
++}
++
++@layer base {
++  * {
++    @apply border-border outline-ring/50;
++  }
++  body {
++    @apply bg-background text-foreground font-sans;
++  }
++}
++
++@layer utilities {
++  /* Dark-to-transparent gradient used over hero/category images for text legibility */
++  .veil {
++    background: linear-gradient(
++      180deg,
++      color-mix(in oklch, var(--ink) 20%, transparent) 0%,
++      color-mix(in oklch, var(--ink) 85%, transparent) 100%
++    );
++  }
++
++  /* Subtle glassmorphism card used in the "experience" section */
++  .glass-card {
++    background: color-mix(in oklch, var(--card) 55%, transparent);
++    border: 1px solid color-mix(in oklch, var(--gold) 25%, transparent);
++    border-radius: var(--radius-lg);
++    backdrop-filter: blur(18px);
++    -webkit-backdrop-filter: blur(18px);
++  }
++
++  /* Gold gradient text used for stat numbers and highlighted words */
++  .text-gold-gradient {
++    background: linear-gradient(
++      90deg,
++      color-mix(in oklch, var(--gold) 70%, white) 0%,
++      var(--gold) 50%,
++      color-mix(in oklch, var(--gold) 70%, black) 100%
++    );
++    background-clip: text;
++    -webkit-background-clip: text;
++    color: transparent;
++  }
++}
