@@ -1,65 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../src";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --radius: 0.25rem;
-
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.14 0 0);
-  --card: oklch(0.99 0 0);
-  --card-foreground: oklch(0.14 0 0);
-  --popover: oklch(0.99 0 0);
-  --popover-foreground: oklch(0.14 0 0);
-  --primary: oklch(0.74 0.13 85);
-  --primary-foreground: oklch(0.14 0.02 85);
-  --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.14 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.46 0 0);
-  --accent: oklch(0.94 0 0);
-  --accent-foreground: oklch(0.14 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.74 0.13 85);
-
-  /* Sanjapa brand tokens */
-  --gold: oklch(0.74 0.13 85);
-  --crimson: oklch(0.32 0.16 25);
-  --crimson-foreground: oklch(0.96 0 0);
-  --ink: oklch(0.1 0 0);
-}
-
-.dark {
-  --background: oklch(0.1 0 0);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.14 0 0);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.14 0 0);
-  --popover-foreground: oklch(0.96 0 0);
-  --primary: oklch(0.74 0.13 85);
-  --primary-foreground: oklch(0.14 0.02 85);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.96 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.74 0.13 85);
-
-  --gold: oklch(0.74 0.13 85);
-  --crimson: oklch(0.32 0.16 25);
-  --crimson-foreground: oklch(0.96 0 0);
-  --ink: oklch(0.08 0 0);
-}
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
 
 @theme inline {
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-crimson: var(--crimson);
+  --color-crimson-foreground: var(--crimson-foreground);
+  --color-ink: var(--ink);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -75,62 +49,128 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
 
-  --color-gold: var(--gold);
-  --color-crimson: var(--crimson);
-  --color-crimson-foreground: var(--crimson-foreground);
-  --color-ink: var(--ink);
+:root {
+  --radius: 0.25rem;
+  --background: oklch(0.145 0.006 30);
+  --foreground: oklch(0.96 0.004 60);
+  --card: oklch(0.185 0.008 30);
+  --card-foreground: oklch(0.96 0.004 60);
+  --popover: oklch(0.17 0.008 30);
+  --popover-foreground: oklch(0.96 0.004 60);
+  --primary: oklch(0.44 0.16 25);
+  --primary-foreground: oklch(0.98 0.005 60);
+  --secondary: oklch(0.24 0.008 30);
+  --secondary-foreground: oklch(0.94 0.004 60);
+  --muted: oklch(0.24 0.008 30);
+  --muted-foreground: oklch(0.72 0.008 60);
+  --accent: oklch(0.78 0.1 85);
+  --accent-foreground: oklch(0.16 0.006 30);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.98 0.005 60);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.78 0.1 85 / 60%);
 
-  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --ink: oklch(0.11 0.004 30);
+  --crimson: oklch(0.44 0.16 25);
+  --crimson-foreground: oklch(0.98 0.005 60);
+  --gold: oklch(0.8 0.09 85);
+  --gold-soft: oklch(0.88 0.05 85);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --chart-1: oklch(0.44 0.16 25);
+  --chart-2: oklch(0.8 0.09 85);
+  --chart-3: oklch(0.6 0.05 60);
+  --chart-4: oklch(0.4 0.02 30);
+  --chart-5: oklch(0.7 0.03 60);
+  --sidebar: oklch(0.145 0.006 30);
+  --sidebar-foreground: oklch(0.96 0.004 60);
+  --sidebar-primary: oklch(0.44 0.16 25);
+  --sidebar-primary-foreground: oklch(0.98 0.005 60);
+  --sidebar-accent: oklch(0.24 0.008 30);
+  --sidebar-accent-foreground: oklch(0.96 0.004 60);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.78 0.1 85 / 60%);
+
+  --gradient-veil: linear-gradient(
+    to top,
+    oklch(0.11 0.004 30) 0%,
+    oklch(0.11 0.004 30 / 0.72) 42%,
+    oklch(0.11 0.004 30 / 0.35) 100%
+  );
+  --gradient-gold: linear-gradient(100deg, var(--gold-soft), var(--gold), oklch(0.62 0.09 70));
+  --shadow-premium: 0 30px 80px -40px oklch(0 0 0 / 0.9);
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-border);
   }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
   body {
-    @apply bg-background text-foreground font-sans;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--crimson);
+    color: var(--crimson-foreground);
   }
 }
 
-@layer utilities {
-  /* Dark-to-transparent gradient used over hero/category images for text legibility */
-  .veil {
-    background: linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--ink) 20%, transparent) 0%,
-      color-mix(in oklch, var(--ink) 85%, transparent) 100%
-    );
-  }
+@utility font-display {
+  font-family: var(--font-display);
+}
 
-  /* Subtle glassmorphism card used in the "experience" section */
-  .glass-card {
-    background: color-mix(in oklch, var(--card) 55%, transparent);
-    border: 1px solid color-mix(in oklch, var(--gold) 25%, transparent);
-    border-radius: var(--radius-lg);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-  }
+@utility text-gold-gradient {
+  background-image: var(--gradient-gold);
+  background-clip: text;
+  color: transparent;
+}
 
-  /* Gold gradient text used for stat numbers and highlighted words */
-  .text-gold-gradient {
-    background: linear-gradient(
-      90deg,
-      color-mix(in oklch, var(--gold) 70%, white) 0%,
-      var(--gold) 50%,
-      color-mix(in oklch, var(--gold) 70%, black) 100%
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
+@utility veil {
+  background-image: var(--gradient-veil);
+}
+
+@utility glass-card {
+  background-color: oklch(1 0 0 / 0.04);
+  backdrop-filter: blur(14px);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  box-shadow: var(--shadow-premium);
+}
+
+@utility hairline {
+  background: linear-gradient(
+    to right,
+    transparent,
+    oklch(0.8 0.09 85 / 0.35),
+    transparent
+  );
 }
