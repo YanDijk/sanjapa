@@ -46,7 +46,7 @@ export function Footer() {
             {nav.map((item) => (
               <li key={item.href}>
                 <a
-                  href={item.href}
+                  href={item.href === "#cardapio" ? "/cardapio" : `/${item.href}`}
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}

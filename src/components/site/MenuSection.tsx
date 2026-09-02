@@ -1,10 +1,11 @@
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import sushi from "@/assets/cat-sushi.jpg";
 import combos from "@/assets/cat-combos.jpg";
 import sashimi from "@/assets/cat-sashimi.jpg";
 import quentes from "@/assets/cat-quentes.jpg";
 import bebidas from "@/assets/cat-bebidas.jpg";
-import { links } from "@/config/site";
+
 import { Reveal } from "./Reveal";
 import { SectionLabel } from "./SectionLabel";
 
@@ -44,10 +45,8 @@ export function MenuSection() {
               delay={i * 0.06}
               className={cat.wide ? "sm:col-span-2 lg:col-span-1 lg:row-span-2" : ""}
             >
-              <a
-                href={links.cardapio}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/cardapio"
                 className={`group relative block h-full overflow-hidden border border-border ${
                   cat.wide ? "min-h-[22rem] lg:min-h-full" : "min-h-[19rem]"
                 }`}
@@ -67,21 +66,19 @@ export function MenuSection() {
                   </div>
                   <span className="mt-4 h-px w-0 bg-gold/70 transition-all duration-700 group-hover:w-16" />
                 </div>
-              </a>
+              </Link>
             </Reveal>
           ))}
         </div>
 
         <Reveal delay={0.1}>
           <div className="mt-14 text-center">
-            <a
-              href={links.cardapio}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/cardapio"
               className="inline-block rounded-xs border border-gold/45 px-12 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-gold transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold/10"
             >
               Ver cardápio completo
-            </a>
+            </Link>
           </div>
         </Reveal>
       </div>

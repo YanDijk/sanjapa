@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { menuCategories } from "@/config/menu";
 
 export function CategoryBar() {
-  const [active, setActive] = useState(menuCategories[0].id);
+  const [active, setActive] = useState<string>(menuCategories[0]?.id ?? "");
 
   useEffect(() => {
     const sections = menuCategories
